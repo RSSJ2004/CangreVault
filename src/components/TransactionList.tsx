@@ -35,6 +35,7 @@ export function SimpleTransactionList({ items, onSelect }: { items: UiTransactio
                 </span>
                 <span className="mt-0.5 flex gap-1">
                   {t.pendingSync && <Badge tone={t.syncError ? 'neg' : 'warn'}>{t.syncError ? 'Error al sincronizar' : 'Pendiente de sincronizar'}</Badge>}
+                  {t.source === 'bank_sync' && <Badge tone="info" title="Sincronizado automáticamente desde el banco">Del banco</Badge>}
                   {internal && <Badge>{TRANSACTION_TYPE_LABEL[t.type]}</Badge>}
                   <AiBadge t={t} />
                 </span>

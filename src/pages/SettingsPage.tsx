@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Card, CardTitle, ErrorBox, Field, Input, Loading, Modal, Money, Notice, PageHeader, Select } from '@/components/ui';
 import { useAccounts, useCategories, useIncomeHistory, useIncomeSources, useProfile } from '@/hooks/useFinance';
@@ -272,7 +273,7 @@ function PreferencesSection() {
 export function SettingsPage() {
   return (
     <div className="space-y-5">
-      <PageHeader title="Configuración financiera" />
+      <PageHeader title="Configuración financiera" actions={<Link to="/bancos" className="text-sm font-medium text-brand-700 underline-offset-2 hover:underline">Conexiones bancarias →</Link>} />
       <SalarySection />
       <AccountsSection />
       <IncomeSourcesSection />

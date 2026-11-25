@@ -24,6 +24,7 @@ const NORMAL_NAV: NavItem[] = [
   { to: '/metas', label: 'Metas de ahorro', icon: '◎' },
   { to: '/simulador', label: 'Simulador', icon: '∿' },
   { to: '/conciliar', label: 'Conciliación', icon: '⇄' },
+  { to: '/bancos', label: 'Conexiones bancarias', icon: '⌂' },
   { to: '/importar', label: 'Importar PDF', icon: '⇪' },
   { to: '/exportar', label: 'Exportar Excel', icon: '⇩' },
   { to: '/asesor', label: 'Asesor IA', icon: '✦' },

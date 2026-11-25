@@ -134,11 +134,34 @@ export function buildFixture(scenario, todayIso) {
       principle_summary: 'Una reserva líquida para imprevistos evita endeudarse.', actionable_tip: 'Empieza con una meta de un mes de gastos esenciales.', source_reference: 'Principio general de finanzas personales', source_url: null, verification_date: null },
   ];
 
+  // Conexión bancaria de PRUEBA (forma de las tablas 0900), para revisar la página /bancos.
+  const conn = { ...base, id: id('n0000000'), provider: 'bridge', provider_connection_id: 'con_qa', environment: 'sandbox', institution_id: 'inst_qa',
+    institution_name: 'Banco de prueba (sandbox)', status: 'active', last_synced_at: ts(d(0)), last_sync_status: 'partial', last_error: null, consecutive_failures: 0, revoked_at: null };
+  const extDep = { ...base, id: id('e0000000'), connection_id: conn.id, provider_account_id: 'acc_dep', provider_type: 'depository', name: 'Cuenta de Ahorros', last_four: '1234',
+    currency: 'DOP', balance_current: '38983.75', balance_available: '38983.75', balance_limit: null, balance_updated_at: ts(d(0)), account_id: debit.id, sync_enabled: true, sync_from: d(-75), last_transaction_refresh: 'txr_1' };
+  const extCard = { ...base, id: id('e0000000'), connection_id: conn.id, provider_account_id: 'acc_card', provider_type: 'credit', name: 'Tarjeta Visa', last_four: '9034',
+    currency: 'DOP', balance_current: '-7900.00', balance_available: '100.00', balance_limit: '8000.00', balance_updated_at: ts(d(0)), account_id: null, sync_enabled: true, sync_from: null, last_transaction_refresh: null };
+  const raw = (o) => ({ ...base, id: id('w0000000'), currency: 'DOP', reference: null, transaction_refresh: 'txr_1', raw: {}, transaction_id: null, first_seen_at: ts(d(0)), ...o });
+  const bank = empty ? { bank_connections: [], bank_external_accounts: [], bank_provider_transactions: [], bank_sync_runs: [] } : {
+    bank_connections: [conn], bank_external_accounts: [extDep, extCard],
+    bank_provider_transactions: [
+      raw({ external_account_id: extDep.id, provider_transaction_id: 'txn_a', amount: '-3200.00', occurred_on: d(-1), description: 'PAGO TARJETA VISA', provider_status: 'posted', review_status: 'needs_review',
+        review_reason: 'Parece un pago de tarjeta y la tarjeta no está conectada o aún no reporta el abono. Un pago de tarjeta no es un gasto nuevo.' }),
+      raw({ external_account_id: extDep.id, provider_transaction_id: 'txn_b', amount: '-1530.00', occurred_on: d(-3), description: 'ALTICE DOMINICANA', provider_status: 'posted', review_status: 'needs_review',
+        review_reason: 'Posible duplicado de «Altice internet» (registrado manualmente).' }),
+      raw({ external_account_id: extDep.id, provider_transaction_id: 'txn_c', amount: '-450.00', occurred_on: d(0), description: 'COLMADO LA ESQUINA', provider_status: 'pending', review_status: 'pending_bank' }),
+      raw({ external_account_id: extCard.id, provider_transaction_id: 'txn_d', amount: '-1875.00', occurred_on: d(-7), description: 'ADRIAN TROPICAL', provider_status: 'posted', review_status: 'unlinked_account' }),
+    ],
+    bank_sync_runs: [
+      { id: id('s0000000'), user_id: USER_ID, connection_id: conn.id, trigger: 'scheduled', started_at: ts(d(0)), finished_at: ts(d(0)), status: 'partial', accounts_seen: 2, provider_rows: 4, transactions_created: 0, needs_review: 2, error: 'Tarjeta Visa: Error del proveedor (503).' },
+      { id: id('s0000000'), user_id: USER_ID, connection_id: conn.id, trigger: 'connect', started_at: ts(d(-1)), finished_at: ts(d(-1)), status: 'ok', accounts_seen: 2, provider_rows: 12, transactions_created: 9, needs_review: 1, error: null },
+    ],
+  };
   const audit = [];
   return {
     profiles: [profile], accounts, categories, transactions, recurring_expenses: recurring, savings_goals: goals, savings_contributions: contributions,
     credit_card_cycles: cycles, reconciliation_records: reconciliations, income_sources: incomeSources, ai_knowledge_base: knowledge,
     profile_income_history: empty ? [] : [{ id: id('h0000000'), user_id: USER_ID, changed_at: ts(d(-75)), old_amount: null, new_amount: '24240.00', old_frequency: null, new_frequency: 'monthly', effective_from: d(-75) }],
-    transaction_audit: audit, account_balances: [], import_batches: [],
+    transaction_audit: audit, account_balances: [], import_batches: [], ...bank,
   };
 }

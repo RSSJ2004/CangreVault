@@ -61,3 +61,19 @@ cola completa (ver `docs/ANDROID_CONTRACT.md`).
 ## 11. Borrado
 Soft-delete en todas las tablas y sin privilegio `DELETE` para usuarios. Solo al eliminar la
 cuenta de Auth se borran físicamente los datos (cascade).
+
+## 12. Conexión bancaria mediante agregador (Bridge)
+**Decisión:** el banco se conecta solo a través de un agregador autorizado (Bridge Connect). Nunca
+se hace scraping ni se guardan credenciales bancarias. El dato original del proveedor se guarda en
+`bank_provider_transactions` (no editable) y se convierte en filas normales de `transactions`
+(`source = 'bank_sync'`) con las mismas reglas contables: pendientes y anulados no cuentan, los dos
+lados de un movimiento entre cuentas conectadas forman UNA fila (pago de tarjeta, transferencia o
+ahorro) y lo ambiguo o posiblemente duplicado queda en revisión. Solo se importan movimientos
+desde el saldo inicial de cada cuenta (§3).
+**Excepción a "sin service_role":** la Edge Function `bank-sync` usa service_role para leer el token
+cifrado y para sincronizar sin la persona presente. Todas sus consultas filtran por `user_id` y
+la base de datos sigue validando cada movimiento (`validate_transaction`).
+**Alternativa:** guardar el token en una tabla con RLS de lectura para el usuario. Se descartó
+porque expondría el token al navegador.
+**Consecuencia:** cambiar de proveedor implica implementar `BankProvider`. El motor no cambia.
+Detalle en `docs/BANK_INTEGRATION_REPORT.md`.

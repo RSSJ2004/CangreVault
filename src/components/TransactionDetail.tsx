@@ -12,7 +12,7 @@ import { TRANSACTION_TYPE_LABEL, type ReconciliationStatus } from '@/domain/type
 import { toAppError } from '@/lib/errors';
 
 const SOURCE_LABEL: Record<string, string> = {
-  manual: 'Manual', pdf_import: 'Importado de PDF', recurring: 'Recurrente', reconciliation: 'Conciliación', android: 'Android', api: 'API',
+  manual: 'Manual', pdf_import: 'Importado de PDF', recurring: 'Recurrente', reconciliation: 'Conciliación', android: 'Android', api: 'API', bank_sync: 'Sincronizado con el banco',
 };
 
 export function TransactionDetail({ t, onClose, simple }: { t: UiTransaction; onClose: () => void; simple?: boolean }) {

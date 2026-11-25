@@ -30,7 +30,7 @@ const ROUTES = [
   ['dashboard', '/dashboard', 'normal'], ['diario', '/diario', 'normal'], ['resultados', '/resultados', 'normal'],
   ['tarjeta', '/tarjeta', 'normal'], ['recurrentes', '/recurrentes', 'normal'], ['metas', '/metas', 'normal'],
   ['simulador', '/simulador', 'normal'], ['conciliar', '/conciliar', 'normal'], ['importar', '/importar', 'normal'],
-  ['exportar', '/exportar', 'normal'], ['asesor', '/asesor', 'normal'], ['ajustes', '/ajustes', 'normal'], ['guia', '/guia', 'normal'],
+  ['exportar', '/exportar', 'normal'], ['asesor', '/asesor', 'normal'], ['bancos', '/bancos', 'normal'], ['ajustes', '/ajustes', 'normal'], ['guia', '/guia', 'normal'],
   ['login', '/login', 'anon'], ['bienvenida', '/bienvenida', 'onboarding'],
 ];
 const VIEWPORTS = {

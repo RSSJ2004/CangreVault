@@ -28,6 +28,7 @@ exactamente el mismo backend Supabase.
 | Asesor IA (Groq) con base de conocimiento citada | ✅* | *Requiere `GROQ_API_KEY`; sin ella, biblioteca + reglas |
 | Sincronización: cola offline idempotente + Realtime | ✅ | Solo creación de movimientos funciona offline |
 | Recordatorios (pago de tarjeta, recurrentes, utilización) | ✅ | Notificaciones del navegador con la app abierta |
+| Conexión bancaria automática (Bridge) | ⚠️ | Código listo y probado; **Banreservas sin verificar**, falta cuenta de Bridge (`docs/BANK_INTEGRATION_REPORT.md`) |
 
 ## Stack
 
@@ -99,12 +100,12 @@ npm run build      # typecheck + build de producción en dist/
 ## Pruebas
 
 ```bash
-npm test              # 71 pruebas unitarias (motor, parser PDF, Excel, outbox, reglas compartidas)
+npm test              # 111 pruebas unitarias (motor, parser PDF, Excel, outbox, reglas compartidas)
 npm run typecheck
 npm run test:db       # aplica TODAS las migraciones en un Postgres local efímero y prueba
                       # reglas contables, RLS entre usuarios, anon, conciliación y auditoría
 bash scripts/verify-excel.sh   # recalcula el XLSX con LibreOffice y compara con el motor
-npx deno check supabase/functions/*/index.ts
+npx deno check supabase/functions/*/index.ts   # 3 funciones
 ```
 
 `test:db` necesita binarios de PostgreSQL 15+ (no Docker). Usa un *stub* mínimo de lo que
@@ -144,3 +145,4 @@ Detalle y alternativas en [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - [`docs/ANDROID_CONTRACT.md`](docs/ANDROID_CONTRACT.md) — sincronización y contratos para Kotlin.
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisiones de diseño y consecuencias.
 - [`docs/OCR_STRATEGY.md`](docs/OCR_STRATEGY.md) — plan para PDF escaneados.
+- [`docs/BANK_INTEGRATION_REPORT.md`](docs/BANK_INTEGRATION_REPORT.md) — conexión bancaria (Bridge), estado y pasos.

@@ -215,7 +215,8 @@ reset role;
 
 -- Realtime publicado
 do $$ begin
-  assert (select count(*) from pg_publication_tables where pubname = 'supabase_realtime') = 11,
+  -- 11 tablas financieras (0700) + 4 de conexiones bancarias (0900).
+  assert (select count(*) from pg_publication_tables where pubname = 'supabase_realtime') = 15,
     'tablas faltantes en supabase_realtime';
 end $$;
 

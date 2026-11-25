@@ -262,3 +262,63 @@ export async function listKnowledge() {
   const rows = check(await requireSupabase().from('ai_knowledge_base').select('*').eq('is_active', true).order('topic')) as Row[];
   return rows.map(mapKnowledge);
 }
+
+// ---------------------------------------------------------------- conexiones bancarias (solo lectura + vínculo)
+export interface BankConnection {
+  id: Uuid; provider: string; environment: 'sandbox' | 'production'; institutionName: string | null;
+  status: 'active' | 'error' | 'reauth_required' | 'revoked'; providerConnectionId: string;
+  lastSyncedAt: string | null; lastSyncStatus: 'ok' | 'partial' | 'error' | null; lastError: string | null; createdAt: string;
+}
+export interface BankExternalAccount {
+  id: Uuid; connectionId: Uuid; providerType: 'depository' | 'credit'; name: string; lastFour: string | null; currency: string;
+  balanceCurrent: number | null; balanceAvailable: number | null; balanceLimit: number | null; balanceUpdatedAt: string | null;
+  accountId: Uuid | null; syncEnabled: boolean; syncFrom: IsoDate | null;
+}
+export interface BankProviderTx {
+  id: Uuid; externalAccountId: Uuid; amount: number; currency: string; occurredOn: IsoDate; description: string;
+  providerStatus: 'pending' | 'posted' | 'void'; reviewStatus: string; reviewReason: string | null; transactionId: Uuid | null;
+}
+export interface BankSyncRun { id: Uuid; connectionId: Uuid; trigger: string; startedAt: string; status: string; transactionsCreated: number; needsReview: number; error: string | null }
+
+const centsOf = (v: unknown) => (v === null || v === undefined ? null : Math.round(Number(v) * 100));
+
+export async function listBankData() {
+  const sb = requireSupabase();
+  const [c, a, t, r] = await Promise.all([
+    sb.from('bank_connections').select('*').is('deleted_at', null).order('created_at'),
+    sb.from('bank_external_accounts').select('*').is('deleted_at', null).order('name'),
+    sb.from('bank_provider_transactions').select('id, external_account_id, amount, currency, occurred_on, description, provider_status, review_status, review_reason, transaction_id')
+      .in('review_status', ['needs_review', 'pending_bank', 'unlinked_account']).order('occurred_on', { ascending: false }).limit(300),
+    sb.from('bank_sync_runs').select('*').order('started_at', { ascending: false }).limit(20),
+  ]);
+  const connections: BankConnection[] = (check(c) as Row[]).map((x) => ({
+    id: String(x.id), provider: String(x.provider), environment: x.environment as BankConnection['environment'], institutionName: (x.institution_name as string) ?? null,
+    status: x.status as BankConnection['status'], providerConnectionId: String(x.provider_connection_id), lastSyncedAt: (x.last_synced_at as string) ?? null,
+    lastSyncStatus: (x.last_sync_status as BankConnection['lastSyncStatus']) ?? null, lastError: (x.last_error as string) ?? null, createdAt: String(x.created_at),
+  }));
+  const accounts: BankExternalAccount[] = (check(a) as Row[]).map((x) => ({
+    id: String(x.id), connectionId: String(x.connection_id), providerType: x.provider_type as BankExternalAccount['providerType'], name: String(x.name),
+    lastFour: (x.last_four as string) ?? null, currency: String(x.currency), balanceCurrent: centsOf(x.balance_current), balanceAvailable: centsOf(x.balance_available),
+    balanceLimit: centsOf(x.balance_limit), balanceUpdatedAt: (x.balance_updated_at as string) ?? null, accountId: (x.account_id as string) ?? null,
+    syncEnabled: Boolean(x.sync_enabled), syncFrom: (x.sync_from as IsoDate) ?? null,
+  }));
+  const pending: BankProviderTx[] = (check(t) as Row[]).map((x) => ({
+    id: String(x.id), externalAccountId: String(x.external_account_id), amount: centsOf(x.amount)!, currency: String(x.currency), occurredOn: x.occurred_on as IsoDate,
+    description: String(x.description), providerStatus: x.provider_status as BankProviderTx['providerStatus'], reviewStatus: String(x.review_status),
+    reviewReason: (x.review_reason as string) ?? null, transactionId: (x.transaction_id as string) ?? null,
+  }));
+  const runs: BankSyncRun[] = (check(r) as Row[]).map((x) => ({
+    id: String(x.id), connectionId: String(x.connection_id), trigger: String(x.trigger), startedAt: String(x.started_at), status: String(x.status),
+    transactionsCreated: Number(x.transactions_created ?? 0), needsReview: Number(x.needs_review ?? 0), error: (x.error as string) ?? null,
+  }));
+  return { connections, accounts, pending, runs };
+}
+
+/** Única escritura directa del usuario sobre tablas bancarias (RLS + permisos por columna). */
+export async function linkBankAccount(externalAccountId: Uuid, patch: { accountId?: Uuid | null; syncEnabled?: boolean; syncFrom?: IsoDate | null }): Promise<void> {
+  const row: Row = {};
+  if (patch.accountId !== undefined) row.account_id = patch.accountId;
+  if (patch.syncEnabled !== undefined) row.sync_enabled = patch.syncEnabled;
+  if (patch.syncFrom !== undefined) row.sync_from = patch.syncFrom;
+  check(await requireSupabase().from('bank_external_accounts').update(row).eq('id', externalAccountId));
+}

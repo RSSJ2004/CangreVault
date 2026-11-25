@@ -75,7 +75,7 @@ export const TYPES_REQUIRING_DESTINATION: ReadonlySet<TransactionType> = new Set
 ]);
 
 export type EntryMode = 'simple' | 'normal' | 'import' | 'recurring' | 'system';
-export type TransactionSource = 'manual' | 'pdf_import' | 'recurring' | 'reconciliation' | 'android' | 'api';
+export type TransactionSource = 'manual' | 'pdf_import' | 'recurring' | 'reconciliation' | 'android' | 'api' | 'bank_sync';
 export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'disputed';
 export type AiStatus = 'none' | 'pending' | 'processing' | 'suggested' | 'accepted' | 'rejected' | 'failed' | 'skipped';
 export type ClassificationSource = 'user' | 'rules' | 'ai';

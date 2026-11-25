@@ -67,3 +67,12 @@ Contratos en `docs/EDGE_FUNCTIONS.md` (`functions-kt`: `supabase.functions.invok
 - Notificaciones push (FCM) para fechas límite y recurrentes.
 - OCR on-device (ML Kit) para estados escaneados.
 - Cola de ediciones offline (la web solo encola creaciones).
+
+## Conexiones bancarias (migración 0900)
+- Tablas de solo lectura para el cliente: `bank_connections`, `bank_external_accounts`,
+  `bank_provider_transactions`, `bank_sync_runs` (sync por `updated_at` como el resto).
+  `bank_provider_credentials` es inaccesible para clientes.
+- Única escritura permitida: `PATCH bank_external_accounts` con `account_id`, `sync_enabled`, `sync_from`.
+- Acciones (`register`, `sync`, `resolve`, `revoke`…) se invocan en la Edge Function `bank-sync`
+  (contrato en `docs/EDGE_FUNCTIONS.md`). Android usará el SDK de Bridge cuando exista; hoy solo web.
+- Movimientos sincronizados = filas de `transactions` con `source = 'bank_sync'`, `entry_mode = 'import'`.

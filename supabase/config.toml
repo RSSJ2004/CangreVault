@@ -26,3 +26,8 @@ verify_jwt = true
 
 [functions.financial-advisor]
 verify_jwt = true
+
+# La función valida el JWT del usuario por sí misma (userClient) y acepta además la
+# llamada programada con el secreto x-bank-sync-secret, que no lleva JWT de usuario.
+[functions.bank-sync]
+verify_jwt = false

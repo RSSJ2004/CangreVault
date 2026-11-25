@@ -19,6 +19,10 @@ export const TABLE_QUERY_KEYS: Record<string, string[][]> = {
   credit_card_cycles: [['cycles']],
   import_batches: [['imports']],
   reconciliation_records: [['reconciliations'], ['serverBalances']],
+  bank_connections: [['bank']],
+  bank_external_accounts: [['bank']],
+  bank_provider_transactions: [['bank']],
+  bank_sync_runs: [['bank']],
 };
 
 export type RealtimeStatus = 'connecting' | 'connected' | 'disconnected' | 'unavailable';

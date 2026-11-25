@@ -23,6 +23,7 @@ import { ReconcilePage } from '@/pages/normal/ReconcilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { GuidePage } from '@/pages/GuidePage';
 import { AdvisorPage } from '@/pages/AdvisorPage';
+import { BankConnectionsPage } from '@/pages/normal/BankConnectionsPage';
 
 // PDF y Excel cargan librerías pesadas: se cargan solo al entrar a esas páginas.
 const ImportPage = lazy(() => import('@/pages/normal/ImportPage'));
@@ -67,6 +68,7 @@ function RoutesTree() {
           <Route path="/simulador" element={<SimulatorPage />} />
           <Route path="/conciliar" element={<ReconcilePage />} />
           <Route path="/importar" element={<ImportPage />} />
+          <Route path="/bancos" element={<BankConnectionsPage />} />
           <Route path="/exportar" element={<ExportPage />} />
           <Route path="/asesor" element={<AdvisorPage />} />
           <Route path="/ajustes" element={<SettingsPage />} />

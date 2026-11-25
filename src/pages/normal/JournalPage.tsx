@@ -11,7 +11,7 @@ import { TRANSACTION_TYPES, TRANSACTION_TYPE_LABEL, type TransactionType } from 
 
 type SortKey = 'occurredOn' | 'amount' | 'description';
 const RECON_LABEL = { unreconciled: 'No conciliado', reconciled: 'Conciliado', disputed: 'En disputa' } as const;
-const SOURCE_SHORT: Record<string, string> = { manual: 'Manual', pdf_import: 'PDF', recurring: 'Recurrente', reconciliation: 'Conciliación', android: 'Android', api: 'API' };
+const SOURCE_SHORT: Record<string, string> = { manual: 'Manual', pdf_import: 'PDF', recurring: 'Recurrente', reconciliation: 'Conciliación', android: 'Android', api: 'API', bank_sync: 'Banco' };
 
 export function JournalPage() {
   const txs = useTransactions();
@@ -102,7 +102,7 @@ export function JournalPage() {
                 <td className="whitespace-nowrap px-3 py-2 tabular">{formatDateEs(t.occurredOn)}</td>
                 <td className="max-w-[260px] px-3 py-2">
                   <div className="truncate">{t.description}</div>
-                  <div className="flex gap-1">{t.pendingSync && <Badge tone={t.syncError ? 'neg' : 'warn'}>{t.syncError ? 'error' : 'pendiente'}</Badge>}<AiBadge t={t} /></div>
+                  <div className="flex gap-1">{t.source === 'bank_sync' && <Badge tone="info" title="Sincronizado automáticamente desde el banco">banco</Badge>}{t.pendingSync && <Badge tone={t.syncError ? 'neg' : 'warn'}>{t.syncError ? 'error' : 'pendiente'}</Badge>}<AiBadge t={t} /></div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2">{accountName(t.accountId)}{t.toAccountId && <span className="text-muted"> → {accountName(t.toAccountId)}</span>}</td>
                 <td className="whitespace-nowrap px-3 py-2">{TRANSACTION_TYPE_LABEL[t.type]}</td>

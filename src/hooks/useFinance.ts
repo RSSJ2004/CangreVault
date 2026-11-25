@@ -168,3 +168,8 @@ export function useFinancialSnapshot() {
 
   return { loading, error, snapshot, profile: profile.data ?? null, categories: categories.data ?? [], transactions: txs.data ?? [] };
 }
+
+export function useBankData() {
+  const { user } = useAuth();
+  return useQuery({ queryKey: ['bank'], queryFn: repo.listBankData, enabled: Boolean(user), staleTime: 15_000 });
+}

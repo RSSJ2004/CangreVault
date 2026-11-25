@@ -78,3 +78,19 @@ npx supabase functions deploy normalize-simple-entry
 npx supabase functions deploy financial-advisor
 npx deno check supabase/functions/*/index.ts   # verificación de tipos
 ```
+
+## bank-sync
+`POST /functions/v1/bank-sync`, `Authorization: Bearer <JWT>` (salvo `scheduled`).
+
+| action | cuerpo | respuesta |
+|---|---|---|
+| `config` | — | `{ configured, environment, applicationId }` |
+| `register` | `connectionId`, `scopedToken?` (de Bridge Connect `onSuccess`) | `{ connection, summary }`. Solo si Bridge lista la conexión para ese token. |
+| `sync` | `connectionId?` (uuid interno) | `{ results: [{ id, summary }] }` |
+| `reclassify` | — | `{ created, review }` |
+| `resolve` | `rawId`, `decision: ignore \| link_existing \| create`, `transactionId?`, `type?`, `counterAccountId?`, `categoryId?` | `{ ok }` |
+| `revoke` | `connectionId` | `{ ok }`. Revoca en Bridge; los movimientos se conservan. |
+| `scheduled` | header `x-bank-sync-secret` | `{ synced, results }` |
+
+Errores: 401 no autenticado · 403 Bridge rechazó el acceso (reautorizar) · 429 límite · 502/503 proveedor o configuración.
+Secretos: `BRIDGE_API_KEY`, `BANK_TOKEN_ENCRYPTION_KEY`, `BANK_SYNC_CRON_SECRET`, `BRIDGE_API_BASE` (opcional).
