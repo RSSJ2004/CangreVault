@@ -128,6 +128,16 @@ do $$ begin
   assert (select balance from public.account_balances ab join ids on ab.account_id = ids.card) = 10.00, 'devolución no aplicada';
 end $$;
 
+-- Campos de sincronización no falsificables por el cliente
+insert into public.transactions (client_id, type, account_id, amount, occurred_on, description, version, created_at, updated_at)
+select '55555555-0000-0000-0000-000000000001', 'EXPENSE', debit, 2, current_date, 'sync', 999, '2000-01-01', '2000-01-01' from ids;
+do $$ declare r record; begin
+  select * into r from public.transactions where client_id = '55555555-0000-0000-0000-000000000001';
+  assert r.version = 1 and r.created_at > now() - interval '1 minute' and r.updated_at > now() - interval '1 minute',
+    'el cliente pudo falsificar version/created_at/updated_at';
+end $$;
+update public.transactions set deleted_at = now() where client_id = '55555555-0000-0000-0000-000000000001';
+
 -- Idempotencia de client_id
 select pg_temp.expect_error($q$insert into public.transactions (client_id, type, account_id, amount, occurred_on, description)
   select '33333333-0000-0000-0000-000000000002', 'EXPENSE', debit, 850, current_date, 'Luz' from ids$q$, 'client_id duplicado');
@@ -137,7 +147,8 @@ update public.transactions set deleted_at = now() where client_id = '33333333-00
 do $$ begin
   assert (select balance from public.account_balances ab join ids on ab.account_id = ids.debit) = 32040.00,
     'soft-delete no excluido del saldo';
-  assert (select count(*) from public.transaction_audit where action = 'soft_delete') = 1, 'soft-delete no auditado';
+  assert (select count(*) from public.transaction_audit a join public.transactions t on t.id = a.transaction_id
+          where a.action = 'soft_delete' and t.client_id = '33333333-0000-0000-0000-000000000002') = 1, 'soft-delete no auditado';
   assert (select version from public.transactions where client_id = '33333333-0000-0000-0000-000000000002') = 2,
     'versión no incrementada';
 end $$;

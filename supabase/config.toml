@@ -1,0 +1,28 @@
+# Configuración mínima del CLI de Supabase para este proyecto.
+# `supabase link --project-ref <ref>` y `supabase db push` aplican las migraciones.
+project_id = "cangrevault"
+
+[api]
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+major_version = 15
+
+[realtime]
+enabled = true
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173"]
+enable_signup = true
+
+[auth.email]
+enable_confirmations = true
+
+[functions.normalize-simple-entry]
+verify_jwt = true
+
+[functions.financial-advisor]
+verify_jwt = true

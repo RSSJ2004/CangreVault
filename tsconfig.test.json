@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src", "supabase/functions/_shared/keywordRules.ts", "supabase/functions/_shared/sanitize.ts", "supabase/functions/_shared/*.test.ts"],
+  "exclude": []
+}

@@ -21,5 +21,6 @@
     "types": ["vite/client"],
     "paths": { "@/*": ["./src/*"], "@shared/*": ["./supabase/functions/_shared/*"] }
   },
-  "include": ["src", "supabase/functions/_shared"]
+  "include": ["src", "supabase/functions/_shared/keywordRules.ts", "supabase/functions/_shared/sanitize.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**"]
 }

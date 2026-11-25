@@ -185,6 +185,13 @@ begin
       using errcode = '23514';
   end if;
 
+  -- Campos de sincronización controlados SOLO por el servidor (cursor de sync de Android/web).
+  if tg_op = 'INSERT' then
+    new.version := 1;
+    new.created_at := now();
+    new.updated_at := now();
+  end if;
+
   if tg_op = 'UPDATE' then
     if new.user_id <> old.user_id then
       raise exception 'No se puede cambiar el propietario de un movimiento' using errcode = '42501';
